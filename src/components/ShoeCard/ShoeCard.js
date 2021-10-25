@@ -5,6 +5,17 @@ import { COLORS, WEIGHTS } from '../../constants';
 import { formatPrice, pluralize, isNewShoe } from '../../utils';
 import Spacer from '../Spacer';
 
+const FLAG_VARIANTS = {
+  'on-sale': {
+    title: 'Sale',
+    backgroundColor: COLORS.primary,
+  },
+  'new-release': {
+    title: 'Just Released!',
+    backgroundColor: COLORS.secondary,
+  },
+};
+
 const ShoeCard = ({
   slug,
   name,
@@ -31,19 +42,28 @@ const ShoeCard = ({
       ? 'new-release'
       : 'default'
 
+  const flagDetails = FLAG_VARIANTS[variant];
+  const isOnSale = variant === 'on-sale';
+
   return (
     <Link href={`/shoe/${slug}`}>
       <Wrapper>
         <ImageWrapper>
           <Image alt="" src={imageSrc} />
+          {flagDetails && (
+            <Flag style={{ '--background-color': flagDetails.backgroundColor }}>
+              {flagDetails.title}
+            </Flag>
+          )}
         </ImageWrapper>
         <Spacer size={12} />
         <Row>
           <Name>{name}</Name>
-          <Price>{formatPrice(price)}</Price>
+          <Price isOnSale={isOnSale}>{formatPrice(price)}</Price>
         </Row>
         <Row>
           <ColorInfo>{pluralize('Color', numOfColors)}</ColorInfo>
+          {isOnSale && <SalePrice>{formatPrice(salePrice)}</SalePrice>}
         </Row>
       </Wrapper>
     </Link>
@@ -68,6 +88,20 @@ const Image = styled.img`
   width: 100%;
 `;
 
+const Flag = styled.div`
+  position: absolute;
+  top: 12px;
+  right: -4px;
+  height: 32px;
+  line-height: 32px;
+  background-color: var(--background-color);
+  border-radius: 2px;
+  color: ${COLORS.white};
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: ${WEIGHTS.bold};
+`;
+
 const Row = styled.div`
   font-size: 1rem;
   display: flex;
@@ -79,7 +113,10 @@ const Name = styled.h3`
   color: ${COLORS.gray[900]};
 `;
 
-const Price = styled.span``;
+const Price = styled.span`
+  color: ${(p) => p.isOnSale && COLORS.gray[700]};
+  text-decoration: ${(p) => p.isOnSale && 'line-through'};
+`;
 
 const ColorInfo = styled.p`
   color: ${COLORS.gray[700]};
